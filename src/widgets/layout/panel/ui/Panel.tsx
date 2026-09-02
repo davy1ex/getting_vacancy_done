@@ -3,18 +3,21 @@ import type { Resume } from '../../../../entities/resume';
 import type { Vacancy } from '../../../../entities/vacancy';
 import { fetchResumes } from '../../../../features/fetchResumes';
 import { parseVacancy, isVacancyPage } from '../../../../features/parseVacancy';
-import './Panel.css';
+import { compareSkills, type SkillComparison } from '../../../../features/compareSkills';
 
-interface PanelProps {
-  onClose: () => void;
-}
 
-export function Panel({ onClose }: PanelProps) {
+export function Panel() {
   const [resumes, setResumes] = useState<Resume[]>([]);
   const [vacancy, setVacancy] = useState<Vacancy | null>(null);
+  const [comparisons, setComparisons] = useState<Map<string, SkillComparison>>(new Map());
   const [loading, setLoading] = useState(false);
   const [vacancyLoading, setVacancyLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const onCloseHandler = () => {
+    const host = document.getElementById('hh-revenge-root');
+    if (host) host.style.display = 'none';
+  }
 
   const handleFetch = useCallback(async () => {
     setLoading(true);
@@ -48,11 +51,24 @@ export function Panel({ onClose }: PanelProps) {
     }
   }, []);
 
+  const handleCompare = useCallback(() => {
+    if (!vacancy || resumes.length === 0) return;
+    const map = new Map<string, SkillComparison>();
+    for (const resume of resumes) {
+      map.set(resume.id, compareSkills(resume.skills, vacancy.skills));
+    }
+    setComparisons(map);
+  }, [vacancy, resumes]);
+
+  const handleCopy = useCallback((text: string) => {
+    navigator.clipboard.writeText(text);
+  }, []);
+
   return (
     <aside className="panel">
       <header className="panel__header">
         <h2 className="panel__title">HH GVD</h2>
-        <button className="panel__close" onClick={onClose} aria-label="Закрыть">
+        <button className="panel__close" onClick = {onCloseHandler} aria-label="Закрыть">
           ×
         </button>
       </header>
@@ -64,6 +80,52 @@ export function Panel({ onClose }: PanelProps) {
           {vacancyLoading ? 'Scanning...' : 'Просканировать вакансию'}
         </button>
         {error && <p className="panel__error">{error}</p>}
+        {vacancy && resumes.length > 0 && (
+          <button className="panel__btn" onClick={handleCompare}>
+            Сравнить скиллы
+          </button>
+        )}
+        {vacancy && comparisons.size > 0 && (
+          <section className="panel__comparison">
+            {resumes.map((resume) => {
+              const comp = comparisons.get(resume.id);
+              if (!comp) return null;
+              return (
+                <article key={resume.id} className="panel__comp-card">
+                  <a href={resume.href} target="_blank" rel="noreferrer" className="panel__link">
+                    {resume.title || resume.id}
+                  </a>
+                  <p className="panel__comp-score">Tag Score: {comp.score}%</p>
+                  {comp.matched.length > 0 && (
+                    <ul className="panel__worklist">
+                      {comp.matched.map((skill) => (
+                        <li key={skill} className="panel__skill panel__skill--matched">
+                          {skill}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                  {comp.missing.length > 0 && (
+                    <ul className="panel__worklist">
+                      {comp.missing.map((skill) => (
+                        <li key={skill} className="panel__skill panel__skill--missing">
+                          <span>{skill}</span>
+                          <button
+                            className="panel__skill-copy"
+                            onClick={() => handleCopy(skill)}
+                            title="Скопировать в буфер"
+                          >
+                            &#128203;
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </article>
+              );
+            })}
+          </section>
+        )}
         {vacancy && (
           <article className="panel__vacancy">
             <h3 className="panel__resume-title">{vacancy.title}</h3>

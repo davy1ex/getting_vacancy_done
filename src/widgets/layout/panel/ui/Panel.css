@@ -166,3 +166,58 @@
 .panel__link:hover {
   text-decoration: underline;
 }
+
+.panel__comparison {
+  margin: 16px 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.panel__comp-card {
+  padding: 12px;
+  border: 1px solid #d0d7de;
+  border-radius: 8px;
+  background: #f6f8fa;
+}
+
+.panel__comp-score {
+  margin: 8px 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #1f2328;
+}
+
+.panel__skill {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 13px;
+  padding: 4px 0;
+}
+
+.panel__skill--matched {
+  display: block;
+  padding: 30px;
+  color: black;
+  background-color: #1a7f37;
+}
+
+.panel__skill--missing {
+  color: #cf222e !important;
+}
+
+.panel__skill-copy {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 2px 4px;
+  border-radius: 4px;
+  color: #57606a;
+}
+
+.panel__skill-copy:hover {
+  background: #d0d7de;
+  color: #1f2328;
+}

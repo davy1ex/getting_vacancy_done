@@ -1,6 +1,7 @@
 import { createRoot } from 'react-dom/client';
+import browser from 'webextension-polyfill';
 import App from './app/App';
-import styles from './app/App.css?inline';
+import styles from './widgets/layout/panel/ui/Panel.css?inline';
 
 function mountPanel(): void {
   const host = document.createElement('div');
@@ -20,6 +21,12 @@ function mountPanel(): void {
 
   const root = createRoot(mountEl);
   root.render(<App />);
+
+  browser.runtime.onMessage.addListener((msg) => {
+    if (msg?.type === 'TOGGLE_PANEL') {
+      host.style.display = host.style.display === 'none' ? '' : 'none';
+    }
+  });
 }
 
 mountPanel();
