@@ -1,0 +1,1 @@
+export { fetchResumes } from "./fetchResumes"

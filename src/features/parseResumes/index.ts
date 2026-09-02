@@ -1,0 +1,1 @@
+export { parseResume, parseResumeLinks } from "./parseResumes"

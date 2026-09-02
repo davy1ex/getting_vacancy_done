@@ -1,0 +1,1 @@
+export type { Resume } from "./model/resume" 
